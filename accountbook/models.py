@@ -7,6 +7,10 @@ class Calendar(BaseModel):
     date = models.DateField(null= False)
     month_total = models.IntegerField(null = False, default = 0)
 
+    class Meta:
+        db_table= "calendars"
+        abstract = False
+        managed = True
 
 class AccountBook(BaseModel):
     calendar = models.OneToOneField(
@@ -44,6 +48,6 @@ class Money(BaseModel):
     status = models.CharField(max_length=1, default="E", null = False)
 
     class Meta:
-        db_table = "money"
+        db_table = "moneys"
         abstract = False
         managed = True 
