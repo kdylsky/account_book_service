@@ -1,5 +1,5 @@
 from user.models import User
-from user.serializers import SignUpSchema
+from user.serializers import SignUpSchema, LoginSchema
 
 class SignUpRepo():
     def __init__(self):
