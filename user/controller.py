@@ -6,18 +6,24 @@ from user.serializers import SignUpSchema, LoginSchema
 from user.service import SignService, LoginService
 from rest_framework import status
 from decorators.execption_handler import execption_hanlder
-from decorators.auth_handler import login_decorator
+
 
 signup_service = SignService()
 login_service = LoginService()
 
 
 class SingUpAPI(APIView):
+    """
+    회원가입 API
+    """
     def post(self,request):
         return signup(request)
 
 
 class LoginAPI(APIView):
+    """
+    로그인 API
+    """
     def post(self, request):
         return user_login(request)
 

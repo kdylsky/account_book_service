@@ -8,6 +8,8 @@ class SignService:
         self.signup_repo = SignUpRepo()
     
     def create(self, name, email, password, plan_money):
+        auth_provider.check_email(email)
+        auth_provider.check_password(password)
         password = auth_provider.hashpw(password)
         create_user =self.signup_repo.create(
             name = name,
