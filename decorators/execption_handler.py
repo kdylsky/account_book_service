@@ -3,7 +3,6 @@ from exceptions import CustomBaseExecption
 from django.http import JsonResponse
 from rest_framework import status
 
-
 def execption_hanlder():
     def decorator(api_func):
         @wraps(api_func)

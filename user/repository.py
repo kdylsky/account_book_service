@@ -1,5 +1,5 @@
 from user.models import User
-from user.serializers import SignUpSchema, LoginSchema
+from user.serializers import SignUpSchema
 
 class SignUpRepo():
     def __init__(self):
@@ -17,5 +17,4 @@ class SignUpRepo():
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
         return serializer.data

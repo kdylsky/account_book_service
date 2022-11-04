@@ -1,16 +1,14 @@
+from rest_framework import status
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import JSONParser
-from django.http import JsonResponse
 from rest_framework.views import APIView
-from user.serializers import SignUpSchema, LoginSchema
 from user.service import SignService, LoginService
-from rest_framework import status
+from user.serializers import SignUpSchema, LoginSchema
+from django.http import JsonResponse
 from decorators.execption_handler import execption_hanlder
-
 
 signup_service = SignService()
 login_service = LoginService()
-
 
 class SingUpAPI(APIView):
     """
@@ -36,7 +34,6 @@ def signup(request):
     params.is_valid(raise_exception=True)    
     created_user = signup_service.create(**params.data)
     return JsonResponse(created_user, status=status.HTTP_201_CREATED)
-
 
 @execption_hanlder()
 @parser_classes([JSONParser])
