@@ -50,11 +50,17 @@ class BookRepo:
         user = request.user
         delete_list= request.GET.getlist("delete_list")
         objs = self.model_one.objects.filter(id__in=delete_list)
-        objs.update(delete_status=False)
+        objs.update(delete_status=True)
         [obj.pay_set.update(delete_status=True) for obj in objs]
 
         if objs:
             return True
         else:
             return False
-            
+    
+    
+    def deletd_booklist(self, request)->dict:
+        user=request.user
+        deleted_account = self.model_one.objects.filter(delete_status=True).order_by("-day")
+        deleted_account = self.serializer_one(instance=deleted_account, many=True)
+        return deleted_account.data

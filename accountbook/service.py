@@ -22,6 +22,7 @@ class BookService:
         )
         return created
     
+    
     def get_list(self, request) -> list:
         """
         가계부를 디폴트로 현재 날짜로 부터 1달 전 까지의 데이터를 가지고 온다.
@@ -30,10 +31,18 @@ class BookService:
         """
         return self.repo.get_list(request)
     
+    
     def delete_book(self, request)->bool:
         """
         accountbook객체를 삭제하면, 날짜에 해당하는 모든 pay객체도 삭제해주어야 한다.
         예)11월1일(객체) - 교통비(객체), 생활비(객체) 등
         """
-        
         return self.repo.delete_book(request)
+
+    
+    def deleted_booklist(self, request)->dict:
+        """
+        삭제한 객체의 delete_status=True(1)이된다.
+        True에 해당하는 accountbook객체를 가지고 온다.
+        """
+        return self.repo.deletd_booklist(request)

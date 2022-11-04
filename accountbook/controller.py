@@ -20,6 +20,9 @@ class AccountBookAPI(APIView):
     def delete(self, request):
         return delete(request)
 
+    def get(self, request):
+        return deleted_get(request)
+
 @execption_hanlder()
 @parser_classes([JSONParser])
 @login_decorator()
@@ -43,3 +46,10 @@ def get(request):
 @login_decorator()
 def delete(request):
     return JsonResponse(book_service.delete_book(request), status=status.HTTP_200_OK, safe=False)
+
+
+@execption_hanlder()
+@parser_classes([JSONParser])
+@login_decorator()
+def deleted_get(request):
+    return JsonResponse(book_service.deleted_booklist(request), status=status.HTTP_200_OK, safe=False)
