@@ -36,7 +36,7 @@ class BookRepo:
         accountbook.save()
         return serialize.data
     
-    
+
     def get_list(self, request)-> list:
         user = request.user
         offset = request.GET.get("offset", 1)
@@ -44,3 +44,17 @@ class BookRepo:
         account = self.model_one.objects.filter(user=user, day__gte=before_one_month).order_by("-day")
         account = self.serializer_one(instance=account, many=True)
         return account.data
+
+
+    def delete_book(self,request)-> bool:
+        user = request.user
+        delete_list= request.GET.getlist("delete_list")
+        objs = self.model_one.objects.filter(id__in=delete_list)
+        objs.update(delete_status=False)
+        [obj.pay_set.update(delete_status=True) for obj in objs]
+
+        if objs:
+            return True
+        else:
+            return False
+            

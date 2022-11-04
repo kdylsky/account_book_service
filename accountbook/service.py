@@ -4,7 +4,7 @@ class BookService:
     def __init__(self):
         self.repo =  BookRepo()
 
-    def book_create(self, user: object, day: str, money: int, title: str, memo: str) -> dict:
+    def create_book(self, user: object, day: str, money: int, title: str, memo: str) -> dict:
         """
         가계부 생성은 두 단계로 이루어진다.
         phase1 : 날짜에 해당하는 가계부 만들기 create_book
@@ -29,3 +29,11 @@ class BookService:
         예)offset=3 -> 3달 전까지 표기
         """
         return self.repo.get_list(request)
+    
+    def delete_book(self, request)->bool:
+        """
+        accountbook객체를 삭제하면, 날짜에 해당하는 모든 pay객체도 삭제해주어야 한다.
+        예)11월1일(객체) - 교통비(객체), 생활비(객체) 등
+        """
+        
+        return self.repo.delete_book(request)

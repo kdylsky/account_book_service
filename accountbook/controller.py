@@ -17,6 +17,9 @@ class AccountBookAPI(APIView):
     def get(self, request):
         return get(request)
 
+    def delete(self, request):
+        return delete(request)
+
 @execption_hanlder()
 @parser_classes([JSONParser])
 @login_decorator()
@@ -25,7 +28,7 @@ def post(request): # Todo:음수값이 들어오는 경우 예외처리 하기
     params = request.data
     params = AccountPostSchema(data=params)
     params.is_valid(raise_exception=True)
-    return JsonResponse(book_service.book_create(user, **params.data), status=status.HTTP_201_CREATED)
+    return JsonResponse(book_service.create_book(user, **params.data), status=status.HTTP_201_CREATED)
 
 
 @execption_hanlder()
@@ -33,3 +36,10 @@ def post(request): # Todo:음수값이 들어오는 경우 예외처리 하기
 @login_decorator()
 def get(request):
     return JsonResponse(book_service.get_list(request), status=status.HTTP_200_OK, safe=False) 
+
+
+@execption_hanlder()
+@parser_classes([JSONParser])
+@login_decorator()
+def delete(request):
+    return JsonResponse(book_service.delete_book(request), status=status.HTTP_200_OK, safe=False)
