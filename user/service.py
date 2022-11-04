@@ -9,7 +9,7 @@ class SignService:
     
     def create(self, name, email, password, plan_money):
         auth_provider.check_email(email)
-        auth_provider.check_password(password)
+        auth_provider.check_password_format(password)
         password = auth_provider.hashpw(password)
         create_user =self.signup_repo.create(
             name = name,

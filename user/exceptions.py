@@ -20,4 +20,7 @@ class FormatEmailError(CustomBaseExecption):
         self.status = status.HTTP_400_BAD_REQUEST
 
 
-
+class NotFoundUserError(CustomBaseExecption):
+    def __init__(self):
+        self.msg = "Can Not Find User"
+        self.status = status.HTTP_400_BAD_REQUEST

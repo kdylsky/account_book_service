@@ -33,7 +33,7 @@ class AuthProvider:
         return datetime.now().timestamp()
 
 
-    def check_password(self, password):
+    def check_password_format(self, password):
         REGEX_PASSWORD = '^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$'
         if not re.match(REGEX_PASSWORD, password):
             raise FormatPasswordError()
