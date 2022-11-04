@@ -11,10 +11,12 @@ class AuthProvider:
         self.expire_sec = settings.JWT_EXPIRE_TIME
  
     def hashpw(self, password: str)-> str:
-        return bcrypt.hashpw(password.encode("utf8"), bcrypt.gensalt()).decode("utf8")
+        password = password.encode("utf8")
+        return bcrypt.hashpw(password, bcrypt.gensalt()).decode("utf8")
 
     def check_password(self, password: str, hash_pw: str)-> bool:
-        return bcrypt.checkpw(password.encode("utf8"), hash_pw.encode("utf8"))
+        hash_pw = hash_pw.encode("utf8")
+        return bcrypt.checkpw(password.encode("utf8"), hash_pw)
 
     def create_token(self, user_id: str, is_expired: bool = False)-> dict:
         exp = 0 if is_expired else self.get_curr_sec() + self.expire_sec
