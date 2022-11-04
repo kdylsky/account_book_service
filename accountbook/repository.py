@@ -41,7 +41,7 @@ class BookRepo:
         user = request.user
         offset = request.GET.get("offset", 1)
         before_one_month = datetime.now() - relativedelta(months=int(offset))
-        account = self.model_one.objects.filter(user=user, day__gte=before_one_month).order_by("-day")
+        account = self.model_one.objects.filter(user=user, day__gte=before_one_month, delete_status=False).order_by("-day")
         account = self.serializer_one(instance=account, many=True)
         return account.data
 
@@ -54,13 +54,27 @@ class BookRepo:
         [obj.pay_set.update(delete_status=True) for obj in objs]
 
         if objs:
-            return True
+            return True # 삭제 성공
         else:
-            return False
+            return False # 삭제 실패
     
-    
+
     def deletd_booklist(self, request)->dict:
         user=request.user
         deleted_account = self.model_one.objects.filter(delete_status=True).order_by("-day")
         deleted_account = self.serializer_one(instance=deleted_account, many=True)
         return deleted_account.data
+    
+
+    def recovey_booklist(self, request):
+        user = request.user
+        recovery_list= request.GET.getlist("recovery_list")
+        objs = self.model_one.objects.filter(id__in=recovery_list)
+        objs.update(delete_status=False)
+        [obj.pay_set.update(delete_status=False) for obj in objs]
+
+        if objs:
+            return True #복구 성공
+        else:
+            return False #복구 실패
+    

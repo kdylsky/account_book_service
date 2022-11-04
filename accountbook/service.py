@@ -27,6 +27,7 @@ class BookService:
         """
         가계부를 디폴트로 현재 날짜로 부터 1달 전 까지의 데이터를 가지고 온다.
         offset에 숫자를 입력시 이전 기록까지 가지고 온다. 
+        delete_status가 False에 해당하는 값만 가지고 온다.
         예)offset=3 -> 3달 전까지 표기
         """
         return self.repo.get_list(request)
@@ -46,3 +47,7 @@ class BookService:
         True에 해당하는 accountbook객체를 가지고 온다.
         """
         return self.repo.deletd_booklist(request)
+    
+
+    def recovey_booklist(self, request):
+        return self.repo.recovey_booklist(request)
