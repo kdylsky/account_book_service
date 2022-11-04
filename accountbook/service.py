@@ -1,7 +1,7 @@
-from accountbook.repository import BookRepo
+from accountbook.repository import BookRepo, PayRepo
 
 class BookService:
-    def __init__(self):
+    def __init__(self)-> None:
         self.repo =  BookRepo()
 
     def create_book(self, user: object, day: str, money: int, title: str, memo: str) -> dict:
@@ -12,16 +12,13 @@ class BookService:
         """
         accountbook = self.repo.create_book(
                         user=user,
-                        day=day
-                    )
+                        day=day)
         created = self.repo.create_pay(
-                accountbook=accountbook,
-                money=money,
-                title=title,
-                memo=memo
-        )
+                        accountbook=accountbook,
+                        money=money,
+                        title=title,
+                        memo=memo)
         return created
-    
     
     def get_list(self, request) -> list:
         """
@@ -32,7 +29,6 @@ class BookService:
         """
         return self.repo.get_list(request)
     
-    
     def delete_book(self, request)->bool:
         """
         accountbook객체를 삭제하면, 날짜에 해당하는 모든 pay객체도 삭제해주어야 한다.
@@ -40,14 +36,30 @@ class BookService:
         """
         return self.repo.delete_book(request)
 
-    
     def deleted_booklist(self, request)->dict:
         """
-        삭제한 객체의 delete_status=True(1)이된다.
-        True에 해당하는 accountbook객체를 가지고 온다.
+        삭제한 객체의 delete_status=True가된다.(데이터베이스상에서는 1이다.)
+        Ture에 해당하는 accountbook객체를 가지고 와서 리스트로 보여준다.
         """
         return self.repo.deletd_booklist(request)
     
-
     def recovey_booklist(self, request):
+        """
+        삭제한 accountbook객체 들 중 리스트로 골라서 복구시킨다.
+        삭제 후에는 다시 일일 총 금액에 더해주어야 한다.
+        """
         return self.repo.recovey_booklist(request)
+
+
+class PayService:
+    def __init__(self)-> None:
+        self.repo = PayRepo()
+    
+    def get_pay_day(self, request, day: str)-> list:
+        return self.repo.get_list_pay(request, day)
+    
+    def delete_pay_day(self, request, day: str)-> bool:
+        return self.repo.delete_day_pay(request,day)
+    
+    def patch_pay_day(self, request, day: str)-> bool:
+        return self.repo.patch_day_pay(request, day)

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from accountbook.models import AccountBook, Pay
 
-
 class AccountPostSchema(serializers.Serializer):
     """
     가계부 생성을 위한 요청 파라미터 스키마
@@ -29,3 +28,13 @@ class PaySerializer(serializers.ModelSerializer):
         model = Pay
         fields = "__all__"
     
+
+class PayListSerializer(serializers.Serializer):
+    """
+    날짜에 해당하는 Pay객체를 위한 serializer
+    """
+    user = serializers.IntegerField(source="accountbook.user.id")
+    accountbook = serializers.DateField(source="accountbook.day")
+    title = serializers.CharField(max_length=30)
+    money = serializers.IntegerField()
+    delete_status = serializers.BooleanField()
