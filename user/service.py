@@ -1,6 +1,6 @@
 from user.models import User
 from user.repository import SignUpRepo
-from user.exceptions import CheckPasswordError
+from user.exceptions import CheckPasswordError, UserDoesNotError
 from provider.auth_provider import auth_provider
 
 class SignService:
@@ -22,8 +22,11 @@ class SignService:
 
 class LoginService:
     def login(self, email: str, password: str)-> str:
-        user = User.objects.get(email=email)    
-        if not auth_provider.check_password(password, user.password):
-            raise CheckPasswordError()
-        token = auth_provider.create_token(user.id)
-        return token
+        try:
+            user = User.objects.get(email=email)    
+            if not auth_provider.check_password(password, user.password):
+                raise CheckPasswordError()
+            token = auth_provider.create_token(user.id)
+            return token
+        except User.DoesNotExist:
+            raise UserDoesNotError()
