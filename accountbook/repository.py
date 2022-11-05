@@ -2,6 +2,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from accountbook.models import AccountBook, Pay
 from accountbook.serializers import AccountBookSerializer, PaySerializer, PayListSerializer
+from accountbook.exceptions import ZeroMoneyError, NotFoundCheckDeleteParams, NotFoundCheckRecoveryParams
 
 class BookRepo:
     def __init__(self)-> None:
@@ -20,6 +21,8 @@ class BookRepo:
         return obj
         
     def create_pay(self, accountbook:object, money: int, title: str, memo: str)-> dict:
+        if money < 0:
+            raise ZeroMoneyError()
         serialize = self.serializer_two(
             data={
                 "accountbook":accountbook.id,
@@ -40,14 +43,15 @@ class BookRepo:
         account = self.model_one.objects.filter(user=user, day__gte=before_one_month, delete_status=False).order_by("-day")
         account = self.serializer_one(instance=account, many=True)
         return account.data
-
+         
     def delete_book(self,request)-> bool:
         user=request.user
         delete_list= request.GET.getlist("delete_list")
-        objs = self.model_one.objects.filter(id__in=delete_list,user=user)
+        objs = self.model_one.objects.filter(id__in=delete_list,user=user, delete_status=False)
+        if not objs:
+            raise NotFoundCheckDeleteParams()
+        cnt = [obj.pay_set.update(delete_status=True) for obj in objs]
         objs.update(delete_status=True)
-        cnt=[obj.pay_set.update(delete_status=True) for obj in objs]
-        
         if cnt:
             return True # 삭제 성공
         else:
@@ -62,11 +66,12 @@ class BookRepo:
     def recovey_booklist(self, request)-> bool:
         user = request.user
         recovery_list= request.GET.getlist("recovery_list")
-        objs = self.model_one.objects.filter(id__in=recovery_list,user=user)
+        objs = self.model_one.objects.filter(id__in=recovery_list,user=user, delete_status=True)
+        if not objs:
+            raise NotFoundCheckRecoveryParams()
+        cnt = [obj.pay_set.update(delete_status=False) for obj in objs]
         objs.update(delete_status=False)
-        [obj.pay_set.update(delete_status=False) for obj in objs]
-
-        if objs:
+        if cnt:
             return True #복구 성공
         else:
             return False #복구 실패
@@ -81,7 +86,7 @@ class PayRepo:
     
     def get_list_pay(self, request, day: str)-> list:
         user = request.user
-        pay_obj = self.model_pay.objects.filter(accountbook__day=day,accountbook__user=user)
+        pay_obj = self.model_pay.objects.filter(accountbook__day=day,accountbook__user=user,delete_status=False)
         serialize = self.serialize_one(instance=pay_obj, many=True)
         return serialize.data
 
@@ -89,13 +94,16 @@ class PayRepo:
         user = request.user
         delete_list = request.GET.getlist("delete_list", None)
         pay_objs = self.model_pay.objects.select_related("accountbook").filter(id__in=delete_list, accountbook__day=day, accountbook__user=user, delete_status=False)
- 
+        if not pay_objs:
+            raise NotFoundCheckDeleteParams()
+        account_obj = pay_objs[0].accountbook
+        total = pay_objs[0].accountbook.day_total
         for pay_obj in pay_objs:
             pay_obj.delete_status = True
-            pay_obj.accountbook.day_total -= pay_obj.money
-            pay_obj.accountbook.save()
+            total -= pay_obj.money
             pay_obj.save()
-
+        account_obj.day_total = total
+        account_obj.save()
         if pay_objs:
             return True # 삭제성공
         else:
@@ -103,15 +111,18 @@ class PayRepo:
     
     def patch_day_pay(self,request,day: str)-> bool:
         user = request.user
-        recovy_list = request.GET.getlist("recovy_list", None)
-        pay_objs = self.model_pay.objects.select_related("accountbook").filter(id__in=recovy_list, accountbook__day=day, accountbook__user=user, delete_status=True)
-
+        recovy_list = request.GET.getlist("recovy_list")
+        pay_objs = self.model_pay.objects.select_related("accountbook").filter(id__in=recovy_list, accountbook__day=day, accountbook__user=user, delete_status=True)        
+        if not pay_objs:
+            raise NotFoundCheckRecoveryParams()
+        account_obj = pay_objs[0].accountbook
+        total = pay_objs[0].accountbook.day_total
         for pay_obj in pay_objs:
             pay_obj.delete_status = False
-            pay_obj.accountbook.day_total += pay_obj.money
-            pay_obj.accountbook.save()
-            pay_obj.save()
-
+            total += pay_obj.money
+            pay_obj.save()        
+        account_obj.day_total = total
+        account_obj.save()
         if pay_objs:
             return True # 복구성공
         else:
