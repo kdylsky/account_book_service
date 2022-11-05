@@ -111,7 +111,7 @@ class PayRepo:
     
     def patch_day_pay(self,request,day: str)-> bool:
         user = request.user
-        recovy_list = request.GET.getlist("recovy_list")
+        recovy_list = request.GET.getlist("recovery_list")
         pay_objs = self.model_pay.objects.select_related("accountbook").filter(id__in=recovy_list, accountbook__day=day, accountbook__user=user, delete_status=True)        
         if not pay_objs:
             raise NotFoundCheckRecoveryParams()
