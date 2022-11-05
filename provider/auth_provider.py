@@ -12,10 +12,11 @@ class AuthProvider:
  
     def hashpw(self, password: str)-> str:
         password = password.encode("utf8")
-        return bcrypt.hashpw(password, bcrypt.gensalt()).decode("utf8")
+        hashed = bcrypt.hashpw(password, bcrypt.gensalt())
+        return hashed.decode("utf8")
 
-    def check_password(self, password: str, hash_pw: str)-> bool:
-        hash_pw = hash_pw.encode("utf8")
+    def check_password(self, password: str, user_password: str)-> bool:
+        hash_pw = user_password.encode("utf8")
         return bcrypt.checkpw(password.encode("utf8"), hash_pw)
 
     def create_token(self, user_id: str, is_expired: bool = False)-> dict:
