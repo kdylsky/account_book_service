@@ -8,6 +8,7 @@ from rest_framework.decorators import parser_classes
 from accountbook.serializers import AccountPostSchema,PaySerializer
 from accountbook.models import Pay
 from accountbook.service import BookService, PayService
+from accountbook.exceptions import NotFoundPayObject
 from decorators.auth_handler import login_decorator
 from decorators.execption_handler import execption_hanlder
 
@@ -118,14 +119,17 @@ def partial_update(request, *args, **kwargs):
     return update(request, *args, **kwargs)
 
 def update(request, *args, **kwargs):
-    partial = kwargs.pop('partial', False)
-    instance = Pay.objects.get(accountbook__user=request.user.id, accountbook__day= kwargs["day"], id = kwargs["id"])
-    serializer = PaySerializer(instance, data=request.data, partial=partial)
-    serializer.is_valid(raise_exception=True)
-    perform_update(serializer)
-    if getattr(instance, '_prefetched_objects_cache', None):
-        instance._prefetched_objects_cache = {}
-    return JsonResponse(serializer.data, status = status.HTTP_200_OK)
+    try:
+        partial = kwargs.pop('partial', False)
+        instance = Pay.objects.get(accountbook__user=request.user.id, accountbook__day= kwargs["day"], id = kwargs["id"])
+        serializer = PaySerializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        perform_update(serializer)
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+        return JsonResponse(serializer.data, status = status.HTTP_200_OK)
+    except Pay.DoesNotExist:
+        raise NotFoundPayObject()
 
 def perform_update(serializer):
     serializer.save()
